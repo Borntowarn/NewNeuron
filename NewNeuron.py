@@ -28,7 +28,6 @@ class neuron:
         self.w = np.zeros(1 + self.x.shape[1])
         self.x[:, 0] = (self.x[:,0] - self.prov1) / self.prov3
         self.x[:, 1] = (self.x[:,1] - self.prov2) / self.prov4
-        'self.x[:, 2] = (self.x[:,2] - self.x[:, 2].mean()) / self.x[:, 2].std()'
         self.random_s = seed(random_s)
 
     def clear_out(self, x):
@@ -92,3 +91,7 @@ while(a[0] != 0):
 
 for i in range(10):
     print(i)
+    i+=1
+    print("DANYA")
+    #sfkvadlfbk
+    #slkv aelb

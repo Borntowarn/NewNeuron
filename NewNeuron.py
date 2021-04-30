@@ -90,6 +90,6 @@ while(a[0] != 0):
     else : print ("versicolor")
     a = [float(s) for s in input().split()]
 
-#sovmaof
-
+#йутоуйктпйулгкм
+#rsksmvjndb
 

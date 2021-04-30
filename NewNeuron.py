@@ -69,7 +69,7 @@ class neuron:
 
 x1 = []
 y1 = []
-with open("C:\\Users\\kozlo\\source\\repos\\Neuron\\NewNeuron\\data.txt", "r") as f:
+with open("C:\\Users\\kozlo\\source\\repos\\VSCODE\\Neuron\\NewNeuron\\data.txt", "r") as f:
     for a in f:
         a = a.strip().split()
         x1.append(a[0:4])
@@ -88,10 +88,3 @@ while(a[0] != 0):
     if (n.predict(a[0:]) == 1) : print("setosa")
     else : print ("versicolor")
     a = [float(s) for s in input().split()]
-
-for i in range(10):
-    print(i)
-    i+=1
-    print("DANYA")
-    #sfkvadlfbk
-    #slkv aelb

@@ -88,6 +88,3 @@ while(a[0] != 0):
     if (n.predict(a[0:]) == 1) : print("setosa")
     else : print ("versicolor")
     a = [float(s) for s in input().split()]
-    asl;erkrvjodarth
-    sdth[lojkrth
-    rwtohipjrth]

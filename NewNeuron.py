@@ -34,7 +34,7 @@ class neuron:
         return (np.dot(x, self.w[1:]) + self.w[0])
     
     def activation(self, x):
-        return (self.clear_out(x))
+        return (1.0/(1.0 + np.exp(-self.clear_out(x))))
        
     def learning(self):
         for i in range(self.iter):
@@ -44,7 +44,10 @@ class neuron:
                 error = self.y[q] - self.activation(self.x[q, :])
                 self.w[1:] += self.eta * self.x[q].T.dot(error)
                 self.w[0] += self.eta * error
-                e += (error**2) * 0.5
+                dop = np.log(self.clear_out(self.x[q, :]))
+                dop1 = np.log((1 - self.clear_out(self.x[q, :])))
+                if self.y[q] == 1 : e -= dop
+                else: e -= dop1
             self.errors_.append(e)
             print (self.errors_[i])
             print (self.proverka())
@@ -55,14 +58,17 @@ class neuron:
         return x[r], y[r]
 
     def predict(self,x):
-        """x = np.array(x);
+        return (np.where(self.clear_out(x) >= 0.5, 1, 0))
+
+    def _predict(self,x):
+        x = np.array(x)
         if x.ndim == 1:
             x[0] = (x[0] - self.prov1) / self.prov3
             x[1] = (x[1] - self.prov2) / self.prov4
         else:
             x[:, 0] = (x[:,0] - self.prov1) / self.prov3
-            x[:, 1] = (x[:,1] - self.prov2) / self.prov4"""
-        return (np.where(self.clear_out(x) >= 0, 1, -1))
+            x[:, 1] = (x[:,1] - self.prov2) / self.prov4
+        return (self.activation(x), np.where(self.clear_out(x) >= 0.5, 1, 0))
 
     def proverka(self):
         return (np.where(self.predict(self.x) == self.y, 1, 0).sum())
@@ -76,15 +82,23 @@ with open("C:\\Users\\kozlo\\source\\repos\\VSCODE\\Neuron\\NewNeuron\\data.txt"
         if a[4] == "setosa":
             y1.append(1)
         else:
-            y1.append(-1)
+            y1.append(0)
 
 n = neuron(20, np.array(x1, dtype = float), np.array(y1), 0.02)
 n.learning()
+print(n.proverka())
 
 
 a = [float(s) for s in input().split()]
 
 while(a[0] != 0):
+<<<<<<< Updated upstream
     if (n.predict(a[0:]) == 1) : print("setosa")
     else : print ("versicolor")
     a = [float(s) for s in input().split()]
+=======
+    odd, _class = n._predict(a[0:])
+    if (_class == 1) : print("setosa c вероятностью ", round(odd*10000)/100, "%")
+    else : print ("versicolor c вероятностью ", round((1-odd)*10000)/100, "%")
+    a = [float(s) for s in input().split()]
+>>>>>>> Stashed changes

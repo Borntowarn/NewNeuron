@@ -92,13 +92,8 @@ print(n.proverka())
 a = [float(s) for s in input().split()]
 
 while(a[0] != 0):
-<<<<<<< Updated upstream
-    if (n.predict(a[0:]) == 1) : print("setosa")
-    else : print ("versicolor")
-    a = [float(s) for s in input().split()]
-=======
     odd, _class = n._predict(a[0:])
     if (_class == 1) : print("setosa c вероятностью ", round(odd*10000)/100, "%")
     else : print ("versicolor c вероятностью ", round((1-odd)*10000)/100, "%")
     a = [float(s) for s in input().split()]
->>>>>>> Stashed changes
+

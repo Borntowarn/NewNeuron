@@ -44,10 +44,10 @@ class neuron:
                 error = self.y[q] - self.activation(self.x[q, :])
                 self.w[1:] += self.eta * self.x[q].T.dot(error)
                 self.w[0] += self.eta * error
-                dop = np.log(self.clear_out(self.x[q, :]))
-                dop1 = np.log((1 - self.clear_out(self.x[q, :])))
-                if self.y[q] == 1 : e -= dop
-                else: e -= dop1
+                dop = -np.log(self.activation(self.x[q, :]))
+                dop1 = -np.log((1 - self.activation(self.x[q, :])))
+                if self.y[q] == 1 : e += dop
+                else: e += dop1
             self.errors_.append(e)
             print (self.errors_[i])
             print (self.proverka())

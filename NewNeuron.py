@@ -68,7 +68,7 @@ class neuron:
         else:
             x[:, 0] = (x[:,0] - self.prov1) / self.prov3
             x[:, 1] = (x[:,1] - self.prov2) / self.prov4
-        return (self.activation(x), np.where(self.clear_out(x) >= 0.5, 1, 0))
+        return (self.activation(x), np.where(self.activation(x) >= 0.5, 1, 0))
 
     def proverka(self):
         return (np.where(self.predict(self.x) == self.y, 1, 0).sum())

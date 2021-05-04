@@ -5,7 +5,7 @@ class neuron:
 	temp = 0.001
 	x = np.array([[]])
 	y = np.array([])
-	eta = 0.001
+	eta = 0.5
 	cost = []
 	iter = 0
 	errors_ = []
@@ -16,7 +16,7 @@ class neuron:
 	prov3 = 0.0
 	prov4 = 0.0
 	random_s = 0
-	llambda = 0.0
+	llambda = 0.0001
 
 	def __init__(self, iter, data, answer, eta, random_s = None):
 		self.eta = eta
@@ -86,7 +86,7 @@ with open("C:\\Users\\kozlo\\source\\repos\\VSCODE\\Neuron\\NewNeuron\\data.txt"
 		else:
 			y1.append(0)
 
-n = neuron(20, np.array(x1, dtype = float), np.array(y1), 0.02)
+n = neuron(20, np.array(x1, dtype = float), np.array(y1), 0.5)
 n.learning()
 print(n.proverka())
 

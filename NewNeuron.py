@@ -124,10 +124,6 @@ q = np.array([i._predict(x) for i in classific]).T.tolist()
 result = []
 for i in q:
 	result.append(i.index(max(i)))
-<<<<<<< Updated upstream
-print ("Число ошибок:", np.where(y_test != result, 1, 0).sum(), sep=" ")
-print ("Точность:", round(accuracy_score(y_test, result) * 100) / 100, "%", sep=" ")
-=======
 print ("Число ошибок:", np.where(y != result, 1, 0).sum(), sep=" ")
 print ("Точность:", round(accuracy_score(y, result) * 100), "%", sep=" ")
 
@@ -137,7 +133,6 @@ for i in np.unique(y1):
 	ax.plot(x[y==i,0], x[y==i,2], 'o', label="класс {}".format(i), color = colors[i])
 	y_ax = ((-classific[i].w[0]-classific[i].w[1]*x_ax)/classific[i].w[3])
 	ax.plot(x_ax,y_ax, color = colors[i])
->>>>>>> Stashed changes
 
 plt.show()
 

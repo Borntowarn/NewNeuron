@@ -116,7 +116,7 @@ result = []
 for i in q:
 	result.append(i.index(max(i)))
 print ("Число ошибок:", np.where(y_test != result, 1, 0).sum(), sep=" ")
-print ("Точность:", round(accuracy_score(y_test, result) * 100) / 100, "%", sep=" ")
+print ("Точность:", round(accuracy_score(y_test, result) * 100), "%", sep=" ")
 
 
 a = [float(s) for s in input().split()]

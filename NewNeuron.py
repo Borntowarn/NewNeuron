@@ -2,7 +2,8 @@ import numpy as np
 from numpy.random import seed
 from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import accuracy_score 
+from sklearn.metrics import accuracy_score
+import matplotlib.pyplot as plt
 
 class neuron:
 	temp = 0.001
@@ -53,13 +54,14 @@ class neuron:
 		return x[r], y[r]
 
 	def predict(self,x):
-		return (np.where(self.clear_out(x) >= 0.5, 1, 0))
+		return (np.where(self.activation(x) >= 0.5, 1, 0))
 
 	def _predict(self,x):
 		return (self.activation(x))
 
 	def proverka(self, x, y):
 		return (np.where(self.predict(x) == y, 1, 0).sum())
+
 
 x1 = []
 y1 = []
@@ -73,7 +75,10 @@ with open("C:\\Users\\kozlo\\source\\repos\\VSCODE\\Neuron\\NewNeuron\\data.txt"
 			y1.append(1)
 		else: y1.append(2)
 
-x_train, x_test, y_train, y_test = train_test_split(np.array(x1),np.array(y1), test_size=0.3, random_state=0)
+x = np.array(x1, dtype=float)
+y = np.array(y1, dtype=float)
+
+x_train, x_test, y_train, y_test = train_test_split(x,y, test_size=0.3, random_state=0)
 
 sc = StandardScaler()
 sc.fit(x_train)
@@ -111,13 +116,30 @@ print(third.proverka(x_test_std, y_test_3))
 classific.append(third)
 #############################################
 
-q = np.array([i._predict(x_test_std) for i in classific]).T.tolist()
+figure, ax = plt.subplots()
+colors = ['red', 'green', 'blue']
+x = sc.transform(x)
+
+q = np.array([i._predict(x) for i in classific]).T.tolist()
 result = []
 for i in q:
 	result.append(i.index(max(i)))
+<<<<<<< Updated upstream
 print ("Число ошибок:", np.where(y_test != result, 1, 0).sum(), sep=" ")
 print ("Точность:", round(accuracy_score(y_test, result) * 100) / 100, "%", sep=" ")
+=======
+print ("Число ошибок:", np.where(y != result, 1, 0).sum(), sep=" ")
+print ("Точность:", round(accuracy_score(y, result) * 100), "%", sep=" ")
 
+x_ax = np.linspace(-3,3,100)
+
+for i in np.unique(y1):
+	ax.plot(x[y==i,0], x[y==i,2], 'o', label="класс {}".format(i), color = colors[i])
+	y_ax = ((-classific[i].w[0]-classific[i].w[1]*x_ax)/classific[i].w[3])
+	ax.plot(x_ax,y_ax, color = colors[i])
+>>>>>>> Stashed changes
+
+plt.show()
 
 a = [float(s) for s in input().split()]
 

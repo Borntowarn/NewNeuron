@@ -2,6 +2,7 @@ import numpy as np
 from numpy.random import seed
 from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score 
 
 class neuron:
 	temp = 0.001
@@ -55,7 +56,7 @@ class neuron:
 		return (np.where(self.clear_out(x) >= 0.5, 1, 0))
 
 	def _predict(self,x):
-		return (self.activation(x), np.where(self.activation(x) >= 0.5, 1, 0))
+		return (self.activation(x))
 
 	def proverka(self, x, y):
 		return (np.where(self.predict(x) == y, 1, 0).sum())
@@ -66,10 +67,11 @@ with open("C:\\Users\\kozlo\\source\\repos\\VSCODE\\Neuron\\NewNeuron\\data.txt"
 	for a in f:
 		a = a.strip().split()
 		x1.append(a[0:4])
-		if a[4] == "Iris-versicolor":
-			y1.append(1)
-		else:
+		if a[4] == "Iris-setosa":
 			y1.append(0)
+		elif a[4] == "Iris-versicolor":
+			y1.append(1)
+		else: y1.append(2)
 
 x_train, x_test, y_train, y_test = train_test_split(np.array(x1),np.array(y1), test_size=0.3, random_state=0)
 
@@ -78,9 +80,43 @@ sc.fit(x_train)
 x_train_std = sc.transform(x_train)
 x_test_std = sc.transform(x_test)
 
-n = neuron(20, x_train_std, y_train, 0.5)
-n.learning()
-print(n.proverka(x_test_std, y_test))
+classific = []
+
+################# FOR SETOSA ################
+y_train_1 = np.where(y_train == 0, 1, 0)
+y_test_1 = np.where(y_test == 0, 1, 0)
+first = neuron(50, x_train_std, y_train_1, 0.5)
+first.learning()
+print(first.proverka(x_test_std, y_test_1))
+classific.append(first)
+#############################################
+
+
+############# FOR VERSICOLOR ################
+y_train_2 = np.where(y_train == 1, 1, 0)
+y_test_2 = np.where(y_test == 1, 1, 0)
+second = neuron(50, x_train_std, y_train_2, 0.5)
+second.learning()
+print(second.proverka(x_test_std, y_test_2))
+classific.append(second)
+#############################################
+
+
+############## FOR VIRGINICA ################
+y_train_3 = np.where(y_train == 2, 1, 0)
+y_test_3 = np.where(y_test == 2, 1, 0)
+third = neuron(50, x_train_std, y_train_3, 0.5)
+third.learning()
+print(third.proverka(x_test_std, y_test_3))
+classific.append(third)
+#############################################
+
+q = np.array([i._predict(x_test_std) for i in classific]).T.tolist()
+result = []
+for i in q:
+	result.append(i.index(max(i)))
+print ("Число ошибок:", np.where(y_test != result, 1, 0).sum(), sep=" ")
+print ("Точность:", round(accuracy_score(y_test, result) * 100) / 100, "%", sep=" ")
 
 
 a = [float(s) for s in input().split()]
@@ -88,8 +124,6 @@ a = [float(s) for s in input().split()]
 while(a[0] != 0):
 	a = np.atleast_2d(a)
 	a = sc.transform(a)
-	odd, _class = n._predict(a)
-	if (_class == 1) : print("Iris-versicolor c вероятностью ", round(odd[0]*10000)/100, "%")
-	else : print ("Iris-virginica c вероятностью ", round((1-odd[0])*10000)/100, "%")
+	print([i._predict(a) for i in classific])
 	a = [float(s) for s in input().split()]
 

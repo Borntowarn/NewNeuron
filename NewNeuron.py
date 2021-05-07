@@ -1,29 +1,28 @@
 import numpy as np
 from numpy.random import seed
+from numpy.random import uniform
 from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
 import matplotlib.pyplot as plt
 
 class neuron:
-	temp = 0.001
 	x = np.array([[]])
 	y = np.array([])
 	eta = 0.5
-	cost = []
 	iter = 0
 	errors_ = []
-	errors_1 = []
 	w = np.array([])
 	random_s = 0
 	llambda = 0.0001
+	start_w = 0.0
 
-	def __init__(self, iter, data, answer, eta, random_s = None):
+	def __init__(self, iter, data, answer, eta, start_w, random_s = None):
 		self.eta = eta
 		self.iter = iter
 		self.x = data
 		self.y = answer
-		self.w = np.zeros(1 + self.x.shape[1])
+		self.w = np.full(1 + self.x.shape[1], start_w)
 		self.random_s = seed(random_s)
 
 	def clear_out(self, x):
@@ -45,8 +44,6 @@ class neuron:
 				if self.y[q] == 1 : e += dop
 				else: e += dop1
 			self.errors_.append(e + (self.llambda/2.0)*self.w.T.dot(self.w))
-			print (self.errors_[i])
-			print (self.proverka(self.x, self.y))
 		return self
 
 	def shuffle(self, x, y):
@@ -77,6 +74,8 @@ with open("C:\\Users\\kozlo\\source\\repos\\VSCODE\\Neuron\\NewNeuron\\data.txt"
 
 x = np.array(x1, dtype=float)
 y = np.array(y1, dtype=float)
+eta = 0.5
+iter = 150
 
 x_train, x_test, y_train, y_test = train_test_split(x,y, test_size=0.3, random_state=0)
 
@@ -86,47 +85,54 @@ x_train_std = sc.transform(x_train)
 x_test_std = sc.transform(x_test)
 
 classific = []
+x = sc.transform(x)
 
-################# FOR SETOSA ################
-y_train_1 = np.where(y_train == 0, 1, 0)
-y_test_1 = np.where(y_test == 0, 1, 0)
-first = neuron(50, x_train_std, y_train_1, 0.5)
-first.learning()
-print(first.proverka(x_test_std, y_test_1))
-classific.append(first)
-#############################################
-
-
-############# FOR VERSICOLOR ################
-y_train_2 = np.where(y_train == 1, 1, 0)
-y_test_2 = np.where(y_test == 1, 1, 0)
-second = neuron(50, x_train_std, y_train_2, 0.5)
-second.learning()
-print(second.proverka(x_test_std, y_test_2))
-classific.append(second)
-#############################################
+while (True):
+	start_w = -30.0
+	################# FOR SETOSA ################
+	y_train_1 = np.where(y_train == 0, 1, 0)
+	y_test_1 = np.where(y_test == 0, 1, 0)
+	first = neuron(iter, x_train_std, y_train_1, eta, start_w)
+	first.learning()
+	print(first.proverka(x_test_std, y_test_1))
+	classific.append(first)
+	#############################################
 
 
-############## FOR VIRGINICA ################
-y_train_3 = np.where(y_train == 2, 1, 0)
-y_test_3 = np.where(y_test == 2, 1, 0)
-third = neuron(50, x_train_std, y_train_3, 0.5)
-third.learning()
-print(third.proverka(x_test_std, y_test_3))
-classific.append(third)
-#############################################
+	############# FOR VERSICOLOR ################
+	y_train_2 = np.where(y_train == 1, 1, 0)
+	y_test_2 = np.where(y_test == 1, 1, 0)
+	second = neuron(iter, x_train_std, y_train_2, eta, start_w)
+	second.learning()
+	print(second.proverka(x_test_std, y_test_2))
+	classific.append(second)
+	#############################################
+
+
+	############## FOR VIRGINICA ################
+	y_train_3 = np.where(y_train == 2, 1, 0)
+	y_test_3 = np.where(y_test == 2, 1, 0)
+	third = neuron(iter, x_train_std, y_train_3, eta, start_w)
+	third.learning()
+	print(third.proverka(x_test_std, y_test_3))
+	classific.append(third)
+	#############################################
+
+	q = np.array([i._predict(x) for i in classific]).T.tolist()
+	result = []
+	for i in q:
+		result.append(i.index(max(i)))
+	print ("Число ошибок:", np.where(y != result, 1, 0).sum(), sep=" ")
+	print ("Точность:", round(accuracy_score(y, result) * 10000) / 100, "%", sep=" ")
+	if ((np.where(y != result, 1, 0).sum()) <= 2 or (start_w >= 30)) : break
+	else: 
+		classific.pop()
+		classific.pop()
+		classific.pop()
+		start_w+=1.0
 
 figure, ax = plt.subplots()
 colors = ['red', 'green', 'blue']
-x = sc.transform(x)
-
-q = np.array([i._predict(x) for i in classific]).T.tolist()
-result = []
-for i in q:
-	result.append(i.index(max(i)))
-print ("Число ошибок:", np.where(y != result, 1, 0).sum(), sep=" ")
-print ("Точность:", round(accuracy_score(y, result) * 100), "%", sep=" ")
-
 x_ax = np.linspace(-3,3,100)
 
 for i in np.unique(y1):

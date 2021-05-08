@@ -43,7 +43,7 @@ class neuron:
 				dop1 = -np.log((1 - self.activation(self.x[q, :])))
 				if self.y[q] == 1 : e += dop
 				else: e += dop1
-			self.errors_.append(e + (self.llambda/2.0)*self.w.T.dot(self.w))
+			self.errors_.append(e/len(self.y) + (self.llambda/2.0)*self.w.T.dot(self.w))
 		return self
 
 	def shuffle(self, x, y):
@@ -62,7 +62,7 @@ class neuron:
 
 x1 = []
 y1 = []
-with open("C:\\Users\\kozlo\\source\\repos\\VSCODE\\Neuron\\NewNeuron\\data.txt", "r") as f:
+with open("C:\\Users\\kozlo\\source\\repos\\VSCODE PYTHON\\Neuron\\NewNeuron\\data.txt", "r") as f:
 	for a in f:
 		a = a.strip().split()
 		x1.append(a[0:4])
@@ -75,7 +75,7 @@ with open("C:\\Users\\kozlo\\source\\repos\\VSCODE\\Neuron\\NewNeuron\\data.txt"
 x = np.array(x1, dtype=float)
 y = np.array(y1, dtype=float)
 eta = 0.5
-iter = 150
+iter = 200
 
 x_train, x_test, y_train, y_test = train_test_split(x,y, test_size=0.3, random_state=0)
 

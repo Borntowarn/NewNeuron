@@ -75,8 +75,8 @@ with open("C:\\Users\\kozlo\\source\\repos\\VSCODE PYTHON\\Neuron\\NewNeuron\\da
 
 x = np.array(x1, dtype=float)
 y = np.array(y1, dtype=float)
-eta = 0.5
-iter = 200
+eta = 1
+iter = 100
 
 x_train, x_test, y_train, y_test = train_test_split(x,y, test_size=0.3, random_state=0)
 
@@ -139,7 +139,7 @@ x_ax = np.linspace(-3,3,100)
 for i in np.unique(y1):
 	ax.plot(x[y==i,0], x[y==i,2], 'o', label="класс {}".format(i), color = colors[i])
 	y_ax = ((-classific[i].w[0]-classific[i].w[1]*x_ax)/classific[i].w[3])
-	ax.plot(x_ax,y_ax, color = colors[i])
+	ax.plot(x_ax, y_ax, color = colors[i])
 
 plt.show()
 

@@ -36,6 +36,7 @@ class neuron:
 			self.x, self.y = self.shuffle(self.x, self.y)
 			e = 0.0
 			for q in range(len(self.y)):
+				self.eta = 1/np.sqrt(q+1)
 				error = self.y[q] - self.activation(self.x[q])
 				self.w[1:] += self.eta * (self.x[q].T.dot(error) - self.w[1:]*self.llambda)
 				self.w[0] += self.eta * (error - self.w[0]*self.llambda)
@@ -88,7 +89,7 @@ classific = []
 x = sc.transform(x)
 
 while (True):
-	start_w = -30.0
+	start_w = np.random.randn(1)
 	################# FOR SETOSA ################
 	y_train_1 = np.where(y_train == 0, 1, 0)
 	y_test_1 = np.where(y_test == 0, 1, 0)

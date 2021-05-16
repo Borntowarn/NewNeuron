@@ -10,13 +10,11 @@ def classifier(data, xtrain, ytrain, n_neighbours = 1):
 	answers_data =[]
 	distance = cdist(data, xtrain, 'euclidean')
 	indexes = np.array([i.argsort() for i in distance[:]])
+	v =[]
 	for i, x in enumerate(data):
-		a = np.where(ytrain[indexes[i, 0:n_neighbours]] == 0, 1, 0).sum()
-		b = np.where(ytrain[indexes[i, 0:n_neighbours]] == 1, 1, 0).sum()
-		c = np.where(ytrain[indexes[i, 0:n_neighbours]] == 2, 1, 0).sum()
-		answers_data.append([a,b,c])
-	return ([i.index(max(i)) for i in answers_data])
-	
+		s = [np.where(ytrain[indexes[i, 0:n_neighbours]] == j, 1, 0).sum() for j in np.unique(ytrain)] # считает количество соседей разных классов вблизи объекта
+		v.append(s.index(max(s))) # выбирает класс, количество объектов вокруг наибольшее
+	return (v)
 	
 
 

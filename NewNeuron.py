@@ -4,17 +4,23 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
 from scipy.spatial.distance import cdist
+from sklearn.svm import SVC
+import matplotlib.pyplot as plt
 
-def classifier(data, xtrain, ytrain, n_neighbours = 1):
+def classifier(data, xtrain, ytrain, h, n_neighbours = 100):
 	ytrain = np.array(ytrain)
 	answers_data =[]
 	distance = cdist(data, xtrain, 'euclidean')
 	indexes = np.array([i.argsort() for i in distance[:]])
-	weights_for_dist = [(n_neighbours - i)/n_neighbours for i in range(n_neighbours)]
-	v =[]
+	distance /= h # h - размер окна Парзена
+	weights_ker = np.exp(-2*distance**2) # инфинитное гауссово ядро
+	v = []
 	for i, x in enumerate(data):
-		s = [np.where(ytrain[indexes[i, 0:n_neighbours]] == j, weights_for_dist[0:n_neighbours], 0).sum() for j in np.unique(ytrain)] # считает количество соседей разных классов вблизи объекта
-		v.append(s.index(max(s))) # выбирает класс, количество объектов вокруг наибольшее
+		s = [np.where(ytrain[indexes[i, 0:n_neighbours]] == j, weights_ker[i, indexes[i, 0:n_neighbours]], 0).sum() for j in np.unique(ytrain)] # считает количество соседей разных классов вблизи объекта
+		v.append(s.index(max(s))) # выбирает класс, вес объектов которого больше воздействует на объект
+		a = 0
+		b = 0
+		c = 0
 	return (v)
 	
 
@@ -33,4 +39,4 @@ with open("C:\\Users\\kozlo\\source\\repos\\VSCODE PYTHON\\Neuron\\NewNeuron\\da
 
 x_train, x_test, y_train, y_test = train_test_split(np.array(x1),np.array(y1), test_size=0.3, random_state=0)
 
-print(np.where(classifier(x_test, x_train, y_train, n_neighbours = 5) == y_test, 1, 0).sum())
+print(np.where(classifier(x_test, x_train, y_train, h=1,  n_neighbours = 100) == y_test, 1, 0).sum())

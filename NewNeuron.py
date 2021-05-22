@@ -1,9 +1,14 @@
 import numpy as np
+from numpy.core.defchararray import title
 from numpy.random import seed
 from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
 from scipy.spatial.distance import cdist
+from sklearn.neighbors import KNeighborsClassifier
+from mlxtend.plotting import plot_decision_regions
+import matplotlib.pyplot as plt
+from torch._C import dtype
 
 def classifier(data, xtrain, ytrain, n_neighbours = 1):
 	ytrain = np.array(ytrain)
@@ -30,6 +35,25 @@ with open("C:\\Users\\kozlo\\source\\repos\\VSCODE PYTHON\\Neuron\\NewNeuron\\da
 			y1.append(1)
 		else: y1.append(2)
 
-x_train, x_test, y_train, y_test = train_test_split(np.array(x1),np.array(y1), test_size=0.3, random_state=0)
+x_train, x_test, y_train, y_test = train_test_split(np.array(x1)[:,0:3:2],np.array(y1), test_size=0.3, random_state=0)
 
-print(np.where(classifier(x_test, x_train, y_train, n_neighbours = 5) == y_test, 1, 0).sum())
+x_train, x_test = [np.array(i, dtype=float) for i in[x_train, x_test]]
+y_train, y_test = [np.array(i, dtype=int) for i in[y_train, y_test]]
+
+distance = cdist(x_train, x_train, 'euclidean')
+
+model = KNeighborsClassifier(n_neighbors = 50, p=2)
+model.fit(x_train, y_train)
+print(np.where(model.predict(x_test)== y_test, 1, 0).sum())
+
+print(np.where(classifier(x_test, x_train, y_train, n_neighbours = 10) == y_test, 1, 0).sum())
+
+fig, axes = plt.subplots(nrows=1, ncols=2)
+
+axes[0].set(title = "train")
+axes[1].set(title = "test")
+
+plot_decision_regions(x_train, y_train, model, ax=axes[0])
+plot_decision_regions(x_test, y_test, model, ax=axes[1])
+
+plt.show()

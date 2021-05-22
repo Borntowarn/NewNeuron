@@ -1,129 +1,115 @@
+from re import X
+from typing import Generator
 import numpy as np
-from numpy.random import seed
-from sklearn.preprocessing import StandardScaler
+from sklearn.linear_model import LinearRegression
+from sklearn.svm import SVR
+from sklearn.preprocessing import PolynomialFeatures
+import matplotlib.pyplot as plt
+from numpy import random
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import accuracy_score 
+from sklearn.utils import shuffle
+import torch
+from torch import nn
+from scipy.spatial.distance import cdist
 
-class neuron:
-	temp = 0.001
-	x = np.array([[]])
-	y = np.array([])
-	eta = 0.5
-	cost = []
-	iter = 0
-	errors_ = []
-	errors_1 = []
-	w = np.array([])
-	random_s = 0
-	llambda = 0.0001
+class lin(nn.Module):
+	def __init__(self, output = 1):
+		super().__init__()
+		self.layers = nn.Sequential()
+		self.device = ('cuda' if torch.cuda.is_available() else 'cpu')
+		self.layers.add_module('lin', nn.LazyLinear(1, output))
+		self.to(self.device)
 
-	def __init__(self, iter, data, answer, eta, random_s = None):
-		self.eta = eta
-		self.iter = iter
-		self.x = data
-		self.y = answer
-		self.w = np.zeros(1 + self.x.shape[1])
-		self.random_s = seed(random_s)
+	def forward(self, data):
+		return self.layers(data)
 
-	def clear_out(self, x):
-		return (np.dot(x, self.w[1:]) + self.w[0])
+
+def training(model, data, answer, loss_f, optim, epochs):
+	for epoch in range(epochs):
+		r = random.permutation(len(data))
+		data, answer = data[r], answer[r]
+		for data11, target in zip(data, answer):
+			data1 = torch.from_numpy(np.array(data11).reshape(3)).to(model.device)
+			answer1 = torch.from_numpy(np.array(target).reshape(1)).to(model.device)
+
+			optim.zero_grad()
+			out = model.forward(data1)
+			loss = loss_f(out, answer1)
+			loss.backward()
+			optim.step()
+
+def testing(model, datas):
+	o = []
+	for data in datas:
+		data1 = torch.from_numpy(np.array(data).reshape(3)).to(model.device)
+		out = model.forward(data1).cpu().detach().numpy()
+		o.append(out)
+	return (o)
+
+def K(dist, h= 0.01):
+	dist /= h
+	return (np.exp(-2*dist**2))
+
+class Nd:
+	def __init__(self, kernel, h):
+		self.kernel = kernel
+		self.h = h
+	def fit(self, x_train, y_train):
+		self.x_train, self.y_train = np.array(x_train), np.array(y_train)
+	def predict(self, data):
+		a = cdist(np.reshape(data,[-1,1]), np.reshape(self.x_train,[-1,1]), 'euclidean')
+		b = self.kernel(a, self.h)
+		val = np.sum(self.y_train * b, -1)
+		val_wtht_y = np.sum(b, -1)
+		return (val / val_wtht_y)
 	
-	def activation(self, x):
-		return (1.0/(1.0 + np.exp(-self.clear_out(x))))
-	   
-	def learning(self):
-		for i in range(self.iter):
-			self.x, self.y = self.shuffle(self.x, self.y)
-			e = 0.0
-			for q in range(len(self.y)):
-				error = self.y[q] - self.activation(self.x[q])
-				self.w[1:] += self.eta * (self.x[q].T.dot(error) - self.w[1:]*self.llambda)
-				self.w[0] += self.eta * (error - self.w[0]*self.llambda)
-				dop = -np.log(self.activation(self.x[q, :]))
-				dop1 = -np.log((1 - self.activation(self.x[q, :])))
-				if self.y[q] == 1 : e += dop
-				else: e += dop1
-			self.errors_.append(e + (self.llambda/2.0)*self.w.T.dot(self.w))
-			print (self.errors_[i])
-			print (self.proverka(self.x, self.y))
-		return self
 
-	def shuffle(self, x, y):
-		r = np.random.permutation(len(y))
-		return x[r], y[r]
+random.seed(0)
 
-	def predict(self,x):
-		return (np.where(self.clear_out(x) >= 0.5, 1, 0))
+x = np.linspace(-5, 5, 300)
+w = [0.3, 1, 2.3, 0.7]
+a = random.randn(300)*0.4
+y = w[0]*x*x -(w[1]**2)*x + w[2]*x+ w[3] + a 
+y1 = w[0]*x*x -(w[1]**2)*x + w[2]*x+ w[3] 
+fig, ax = plt.subplots()
 
-	def _predict(self,x):
-		return (self.activation(x))
+#pl = PolynomialFeatures(2)
+#x = pl.fit_transform(np.array(x).reshape(300,1))
 
-	def proverka(self, x, y):
-		return (np.where(self.predict(x) == y, 1, 0).sum())
+x_train, x_test, y_train, y_test = train_test_split(x, y, test_size =0.3, random_state = 0)
 
-x1 = []
-y1 = []
-with open("C:\\Users\\kozlo\\source\\repos\\VSCODE\\Neuron\\NewNeuron\\data.txt", "r") as f:
-	for a in f:
-		a = a.strip().split()
-		x1.append(a[0:4])
-		if a[4] == "Iris-setosa":
-			y1.append(0)
-		elif a[4] == "Iris-versicolor":
-			y1.append(1)
-		else: y1.append(2)
+"""model = lin(output=1)
+training(model, np.array(x_train, dtype=np.float32), np.array(y_train, dtype=np.float32), nn.MSELoss(), torch.optim.Adam(model.parameters(), lr=0.001, weight_decay=0.0001), 30)
+c = testing(model, np.array(x_test, dtype=np.float32))"""
 
-x_train, x_test, y_train, y_test = train_test_split(np.array(x1),np.array(y1), test_size=0.3, random_state=0)
+"""modelsvc = SVR(C = 1000, kernel='linear')
+x_train = np.array(x_train).reshape(210,3)
+x_test = np.array(x_test).reshape(90,3)
+modelsvc.fit(x_train, y_train)
+modelsvc.predict(np.array(x_test).reshape(90,3))"""
 
-sc = StandardScaler()
-sc.fit(x_train)
-x_train_std = sc.transform(x_train)
-x_test_std = sc.transform(x_test)
+modelND = Nd(K, 0.5)
+modelND.fit(x_train, y_train)
+ND_pred = modelND.predict(x)
 
-classific = []
+ax.scatter(x, y, color = 'r')
+ax.plot(x, y1, color = 'b')
+ax.plot(x, ND_pred, color='pink')
+#ax.plot(x_test[:, 1], c, color='g')
+#ax.scatter(x_test[:, 1], c, color='g')
+#ax.scatter(x_test[:, 1], modelsvc.predict(x_test), color='pink')
+plt.show()
 
-################# FOR SETOSA ################
-y_train_1 = np.where(y_train == 0, 1, 0)
-y_test_1 = np.where(y_test == 0, 1, 0)
-first = neuron(50, x_train_std, y_train_1, 0.5)
-first.learning()
-print(first.proverka(x_test_std, y_test_1))
-classific.append(first)
-#############################################
+"""x_train, x_test, y_train, y_test = train_test_split(x, y, test_size =0.3, random_state = 0)
 
+modelsvc = SVR(C = 1000, kernel='rbf', gamma = 'auto')
+x_train = np.array(x_train).reshape(210,1)
+x_test = np.array(x_test).reshape(90,1)
+modelsvc.fit(x_train, y_train)
+modelsvc.predict(np.array(x_test).reshape(90,1))
+print(modelsvc.dual_coef_)
 
-############# FOR VERSICOLOR ################
-y_train_2 = np.where(y_train == 1, 1, 0)
-y_test_2 = np.where(y_test == 1, 1, 0)
-second = neuron(50, x_train_std, y_train_2, 0.5)
-second.learning()
-print(second.proverka(x_test_std, y_test_2))
-classific.append(second)
-#############################################
-
-
-############## FOR VIRGINICA ################
-y_train_3 = np.where(y_train == 2, 1, 0)
-y_test_3 = np.where(y_test == 2, 1, 0)
-third = neuron(50, x_train_std, y_train_3, 0.5)
-third.learning()
-print(third.proverka(x_test_std, y_test_3))
-classific.append(third)
-#############################################
-
-q = np.array([i._predict(x_test_std) for i in classific]).T.tolist()
-result = []
-for i in q:
-	result.append(i.index(max(i)))
-print ("Число ошибок:", np.where(y_test != result, 1, 0).sum(), sep=" ")
-print ("Точность:", round(accuracy_score(y_test, result) * 100), "%", sep=" ")
-
-
-a = [float(s) for s in input().split()]
-
-while(a[0] != 0):
-	a = np.atleast_2d(a)
-	a = sc.transform(a)
-	print([i._predict(a) for i in classific])
-	a = [float(s) for s in input().split()]
-
+ax.scatter(x, y, color = 'r')
+ax.plot(x, y1, color = 'b')
+ax.scatter(x_test, modelsvc.predict(x_test), color='g')
+plt.show()"""

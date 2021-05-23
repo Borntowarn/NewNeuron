@@ -17,7 +17,11 @@ class lin(nn.Module):
 		super().__init__()
 		self.layers = nn.Sequential()
 		self.device = ('cuda' if torch.cuda.is_available() else 'cpu')
-		self.layers.add_module('lin', nn.LazyLinear(1, output))
+		self.layers.add_module('layer', nn.Linear(1, 32))
+		self.layers.add_module('activation', nn.ReLU())
+		self.layers.add_module('layer1', nn.Linear(32, 32))
+		self.layers.add_module('activation1', nn.ReLU())
+		self.layers.add_module('lin', nn.Linear(32, output))
 		self.to(self.device)
 
 	def forward(self, data):
@@ -29,7 +33,7 @@ def training(model, data, answer, loss_f, optim, epochs):
 		r = random.permutation(len(data))
 		data, answer = data[r], answer[r]
 		for data11, target in zip(data, answer):
-			data1 = torch.from_numpy(np.array(data11).reshape(3)).to(model.device)
+			data1 = torch.from_numpy(np.array(data11).reshape(1)).to(model.device)
 			answer1 = torch.from_numpy(np.array(target).reshape(1)).to(model.device)
 
 			optim.zero_grad()
@@ -41,7 +45,7 @@ def training(model, data, answer, loss_f, optim, epochs):
 def testing(model, datas):
 	o = []
 	for data in datas:
-		data1 = torch.from_numpy(np.array(data).reshape(3)).to(model.device)
+		data1 = torch.from_numpy(np.array(data).reshape(1)).to(model.device)
 		out = model.forward(data1).cpu().detach().numpy()
 		o.append(out)
 	return (o)
@@ -78,9 +82,10 @@ fig, ax = plt.subplots()
 
 x_train, x_test, y_train, y_test = train_test_split(x, y, test_size =0.3, random_state = 0)
 
-"""model = lin(output=1)
+model = lin(output=1)
+print(model)
 training(model, np.array(x_train, dtype=np.float32), np.array(y_train, dtype=np.float32), nn.MSELoss(), torch.optim.Adam(model.parameters(), lr=0.001, weight_decay=0.0001), 30)
-c = testing(model, np.array(x_test, dtype=np.float32))"""
+c = testing(model, np.array(x, dtype=np.float32))
 
 """modelsvc = SVR(C = 1000, kernel='linear')
 x_train = np.array(x_train).reshape(210,3)
@@ -95,7 +100,7 @@ ND_pred = modelND.predict(x)
 ax.scatter(x, y, color = 'r')
 ax.plot(x, y1, color = 'b')
 ax.plot(x, ND_pred, color='pink')
-#ax.plot(x_test[:, 1], c, color='g')
+ax.plot(x, c, color='g')
 #ax.scatter(x_test[:, 1], c, color='g')
 #ax.scatter(x_test[:, 1], modelsvc.predict(x_test), color='pink')
 plt.show()
